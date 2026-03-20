@@ -1,0 +1,68 @@
+<svg width="1573" height="1180" viewBox="0 0 1573 1180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main field background (extended) -->
+  <rect width="1573" height="1180" fill="#8FBD2C"/>
+  
+  <!-- Alternating stripes (extended) -->
+  <rect y="0" width="1573" height="118" fill="#7FA823" opacity="0.3"/>
+  <rect y="236" width="1573" height="118" fill="#7FA823" opacity="0.3"/>
+  <rect y="472" width="1573" height="118" fill="#7FA823" opacity="0.3"/>
+  <rect y="708" width="1573" height="118" fill="#7FA823" opacity="0.3"/>
+  <rect y="944" width="1573" height="118" fill="#7FA823" opacity="0.3"/>
+  
+  <!-- Dead ball line (outer boundary) - extended 100 units on each side -->
+  <rect x="25" y="25" width="1523" height="1130" stroke="white" stroke-width="8" fill="none"/>
+  
+  <!-- Try lines (new position - was the outer boundary of try zones) -->
+  <rect x="125" y="25" width="1323" height="1130" stroke="white" stroke-width="6" fill="none"/>
+  
+  <!-- Try zones (extended by 100 units on each side) -->
+  <rect x="25" y="25" width="100" height="1130" fill="rgba(255, 255, 255, 0.05)"/>
+  <rect x="1448" y="25" width="100" height="1130" fill="rgba(255, 255, 255, 0.05)"/>
+  
+  <!-- 5m lines (was try lines) -->
+  <line x1="225" y1="25" x2="225" y2="1155" stroke="white" stroke-width="4" stroke-dasharray="50,60"/>
+  <line x1="1348" y1="25" x2="1348" y2="1155" stroke="white" stroke-width="4" stroke-dasharray="50,60"/>
+  
+  <!-- 22m lines -->
+  <line x1="432.5" y1="25" x2="432.5" y2="1155" stroke="white" stroke-width="4"/>
+  <line x1="1140.5" y1="25" x2="1140.5" y2="1155" stroke="white" stroke-width="4"/>
+  
+  <!-- 10m lines -->
+  <line x1="640" y1="25" x2="640" y2="1155" stroke="white" stroke-width="4" stroke-dasharray="50,60"/>
+  <line x1="933" y1="25" x2="933" y2="1155" stroke="white" stroke-width="4" stroke-dasharray="50,60"/>
+  
+  <!-- Halfway line -->
+  <line x1="786.5" y1="25" x2="786.5" y2="1155" stroke="white" stroke-width="6"/>
+  
+  <!-- 5m lines from touchlines (horizontal) -->
+  <line x1="225" y1="93.33" x2="1348" y2="93.33" stroke="white" stroke-width="4" stroke-dasharray="50,60"/>
+  <line x1="225" y1="1086.67" x2="1348" y2="1086.67" stroke="white" stroke-width="4" stroke-dasharray="50,60"/>
+  
+  <!-- 15m lines from touchlines (horizontal) -->
+  <line x1="225" y1="230" x2="1348" y2="230" stroke="white" stroke-width="4" stroke-dasharray="50,60"/>
+  <line x1="225" y1="950" x2="1348" y2="950" stroke="white" stroke-width="4" stroke-dasharray="50,60"/>
+  
+  <!-- Goal posts -->
+  <line x1="786.5" y1="25" x2="786.5" y2="60" stroke="white" stroke-width="6"/>
+  <line x1="761.5" y1="35" x2="811.5" y2="35" stroke="white" stroke-width="6"/>
+  
+  <line x1="786.5" y1="1120" x2="786.5" y2="1155" stroke="white" stroke-width="6"/>
+  <line x1="761.5" y1="1145" x2="811.5" y2="1145" stroke="white" stroke-width="6"/>
+  
+  <!-- Labels -->
+  <text x="225" y="70" fill="white" font-size="48" font-weight="bold" text-anchor="middle" font-family="Arial">5</text>
+  <text x="432.5" y="70" fill="white" font-size="48" font-weight="bold" text-anchor="middle" font-family="Arial">22</text>
+  <text x="640" y="70" fill="white" font-size="48" font-weight="bold" text-anchor="middle" font-family="Arial">10</text>
+  <text x="786.5" y="70" fill="white" font-size="48" font-weight="bold" text-anchor="middle" font-family="Arial">50</text>
+  <text x="933" y="70" fill="white" font-size="48" font-weight="bold" text-anchor="middle" font-family="Arial">10</text>
+  <text x="1140.5" y="70" fill="white" font-size="48" font-weight="bold" text-anchor="middle" font-family="Arial">22</text>
+  <text x="1348" y="70" fill="white" font-size="48" font-weight="bold" text-anchor="middle" font-family="Arial">5</text>
+  
+  <text x="225" y="1120" fill="white" font-size="48" font-weight="bold" text-anchor="middle" font-family="Arial">5</text>
+  <text x="432.5" y="1120" fill="white" font-size="48" font-weight="bold" text-anchor="middle" font-family="Arial">22</text>
+  <text x="640" y="1120" fill="white" font-size="48" font-weight="bold" text-anchor="middle" font-family="Arial">10</text>
+  <text x="786.5" y="1120" fill="white" font-size="48" font-weight="bold" text-anchor="middle" font-family="Arial">50</text>
+  <text x="933" y="1120" fill="white" font-size="48" font-weight="bold" text-anchor="middle" font-family="Arial">10</text>
+  <text x="1140.5" y="1120" fill="white" font-size="48" font-weight="bold" text-anchor="middle" font-family="Arial">22</text>
+  <text x="1348" y="1120" fill="white" font-size="48" font-weight="bold" text-anchor="middle" font-family="Arial">5</text>
+</svg>
