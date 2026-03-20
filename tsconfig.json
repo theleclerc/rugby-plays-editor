@@ -23,11 +23,11 @@
     "noUncheckedSideEffectImports": true,
     "paths": {
       "@/*": [
-        "./rugby-plays-editor/src/*"
+        "./src/*"
       ]
     },
   },
   "include": [
-    "rugby-plays-editor/src"
+    "src"
   ]
 }
