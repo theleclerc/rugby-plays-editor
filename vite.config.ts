@@ -19,7 +19,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': resolve(projectRoot, 'rugby-plays-editor/src')
+      '@': resolve(projectRoot, 'src')
     }
   },
   server: {
