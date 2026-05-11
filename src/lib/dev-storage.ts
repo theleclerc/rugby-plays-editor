@@ -36,6 +36,7 @@ export async function listScratch(): Promise<DevEntry[]> {
 }
 
 export async function readScratch(name: string): Promise<SavedProject> {
+  if (!isDev) throw new Error('readScratch is dev-only')
   return api<SavedProject>('GET', `/__dev__/scratch/${encodeURIComponent(name)}`)
 }
 
@@ -55,6 +56,7 @@ export async function listExamples(): Promise<DevEntry[]> {
 }
 
 export async function readExample(name: string): Promise<SavedProject> {
+  if (!isDev) throw new Error('readExample is dev-only')
   return api<SavedProject>('GET', `/__dev__/examples/${encodeURIComponent(name)}`)
 }
 
