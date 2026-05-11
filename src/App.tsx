@@ -244,7 +244,7 @@ function App() {
           setCropRegion(undefined)
         }
         toast.success('Project loaded successfully')
-      } catch (error) {
+      } catch {
         toast.error('Failed to load project file')
       }
     }

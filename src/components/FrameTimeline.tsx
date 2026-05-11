@@ -43,8 +43,6 @@ const FrameThumbnail = ({ frame, isActive }: { frame: Frame; isActive: boolean }
     if (!ctx) return
 
     const scale = 0.2
-    const width = FIELD_WIDTH * scale
-    const height = FIELD_HEIGHT * scale
 
     ctx.save()
     ctx.scale(scale, scale)

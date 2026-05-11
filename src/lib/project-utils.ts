@@ -47,7 +47,7 @@ export function importProject(jsonString: string): { frames: Frame[]; cropRegion
       cropRegion: projectData.cropRegion
     }
   } catch (error) {
-    throw new Error('Failed to parse project file')
+    throw new Error('Failed to parse project file', { cause: error })
   }
 }
 
