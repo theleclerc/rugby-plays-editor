@@ -35,3 +35,4 @@ pids
 
 # Claude Code local-only overrides (personal permissions, env, etc.)
 .claude/settings.local.json
+dev-scratch/
