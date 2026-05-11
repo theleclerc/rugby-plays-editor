@@ -11,6 +11,8 @@ import { ExportDialog } from '@/components/ExportDialog'
 import { SaveFrameDialog } from '@/components/SaveFrameDialog'
 import { LoadFrameDialog } from '@/components/LoadFrameDialog'
 import { SaveProjectDialog } from '@/components/SaveProjectDialog'
+import { writeScratch, writeExample, slugify } from '@/lib/dev-storage'
+import type { SaveProjectTarget } from '@/components/SaveProjectDialog'
 import { LoadProjectDialog } from '@/components/LoadProjectDialog'
 import { Button } from '@/components/ui/button'
 import { Toaster, toast } from 'sonner'
@@ -160,17 +162,36 @@ function App() {
     setLoadProjectDialogOpen(true)
   }
 
-  const handleSaveProjectWithName = (name: string) => {
-    const savedProject: SavedProject = {
+  const handleSaveProjectWithName = async (name: string, target: SaveProjectTarget) => {
+    const project: SavedProject = {
       id: crypto.randomUUID(),
       name,
       frames: JSON.parse(JSON.stringify(safeFrames)),
       cropRegion: cropRegion ? JSON.parse(JSON.stringify(cropRegion)) : undefined,
       createdAt: Date.now(),
     }
-    
-    setSavedProjects((current) => [...(current || []), savedProject])
-    toast.success(`Project "${name}" saved successfully`)
+
+    if (target === 'library') {
+      setSavedProjects((current) => [...(current || []), project])
+      toast.success(`Project "${name}" saved successfully`)
+      return
+    }
+
+    const filename = `${slugify(name)}.json`
+    try {
+      if (target === 'scratch') {
+        await writeScratch(filename, project)
+        toast.success(`Saved to dev-scratch/${filename}`)
+      } else {
+        await writeExample(filename, project)
+        toast.success(
+          `Saved to src/examples/${filename} — commit it to ship with the app.`,
+        )
+      }
+    } catch (err) {
+      console.error(err)
+      toast.error(`Failed to save: ${(err as Error).message}`)
+    }
   }
 
   const handleLoadSavedProject = (savedProject: SavedProject) => {
