@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-Dev workflow runs in Docker (Node 20 Alpine, Vite dev server on port 5000). Common workflows are wrapped as slash commands in [.claude/commands/](.claude/commands/): `/dev`, `/preview`, `/shell`, `/logs`, `/kill5000`.
+Dev workflow runs in Docker (Node 20 Alpine, Vite dev server on port 5000). Common workflows are wrapped as slash commands in [.claude/commands/](.claude/commands/): `/dev`, `/preview`, `/prod`, `/shell`, `/logs`, `/kill5000`.
 
 Direct npm scripts:
 
