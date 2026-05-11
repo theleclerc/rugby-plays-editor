@@ -59,7 +59,7 @@ Glossary for translating user descriptions into JSON. FR aliases marked `[FR?]` 
 | Wraparound | Redoublée | Similar to loop |
 | Line of running | Course | Angle a runner takes |
 | Out the back | Passe dans le dos | Pass thrown behind a decoy to a deeper receiver |
-| Crash ball | Ballon porté `[FR?]` / charge centrale | Hard carry from a centre |
+| Crash ball | Tout droit / charge tout droit | Hard carry from a centre |
 | Tip-on / Tip pass | Passe courte | Short flat pass while running flat |
 
 ## Defensive
@@ -68,7 +68,7 @@ Glossary for translating user descriptions into JSON. FR aliases marked `[FR?]` 
 |---|---|---|
 | Drift | Glissée | Line slides outward as ball goes wide |
 | Blitz / Rush | Montée agressive (umbrella) | Line comes up fast and flat |
-| Jam | Jam `[FR?]` | Outside defender cuts in hard |
+| Jam | Défendre en inversé | Outside defender cuts in hard |
 | Pillar | Pilier (défensif) | Defender stationed next to the breakdown |
 | Post | Poste | Second defender out from the breakdown |
 | Sweeper | Couvreur arrière | Back-field defender behind the line |
@@ -95,7 +95,7 @@ Glossary for translating user descriptions into JSON. FR aliases marked `[FR?]` 
 | English | French |
 |---|---|
 | Box kick | Chandelle de poche |
-| Grubber | Grubber `[FR?]` |
+| Grubber | Coup de pied rasant (rasant) |
 | Cross-field kick | Coup de pied diagonal |
 | Drop goal | Drop |
 | Up-and-under | Chandelle |
