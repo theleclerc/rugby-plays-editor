@@ -308,9 +308,9 @@ export const RugbyFieldCanvas = ({
 
     const { x, y } = getCanvasCoordinates(e)
     
-    let updatedPlayers = [...frame.players]
+    const updatedPlayers = [...frame.players]
     let updatedBall = frame.ball
-    let updatedEmojis = [...frame.emojis]
+    const updatedEmojis = [...frame.emojis]
 
     dragOffsets.forEach((offset, id) => {
       const newX = Math.max(PLAYER_RADIUS, Math.min(FIELD_WIDTH - PLAYER_RADIUS, x - offset.x))
