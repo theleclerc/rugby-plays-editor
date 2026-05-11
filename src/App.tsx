@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/lib/storage'
 import { Frame, Tool, Team, SavedFrame, SavedProject, CropRegion } from '@/lib/types'
 import { createEmptyFrame, duplicateFrame, addTeamInLine } from '@/lib/canvas-utils'
 import { generateVideo } from '@/lib/video-export'
