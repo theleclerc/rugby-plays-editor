@@ -23,15 +23,15 @@ Source of truth for constants and types: [src/lib/canvas-utils.ts](../../../../s
 
 | Line | y |
 |---|---|
-| Top try line | 0 |
-| 5m (top) | ~79 |
-| 22m (top) | ~370 |
+| Top try line | ~164 |
+| 5m (top) | ~225 |
+| 22m (top) | ~432 |
 | Halfway | ~787 |
-| 22m (bottom) | ~1203 |
-| 5m (bottom) | ~1494 |
-| Bottom try line | 1573 |
+| 22m (bottom) | ~1141 |
+| 5m (bottom) | ~1348 |
+| Bottom try line | ~1409 |
 
-These are fractions of FIELD_HEIGHT used by the render script: 5m ≈ 0.05, 22m ≈ 0.235, halfway = 0.5, and mirrored.
+These are fractions of FIELD_HEIGHT used by the render script: 5m ≈ 0.143, 22m ≈ 0.275, halfway = 0.5, mirrored at 0.725 and 0.857. The canvas extends past the try lines into the in-goal area (y < 164 and y > 1409), so play positions can use the full field height.
 
 ## Document shape
 

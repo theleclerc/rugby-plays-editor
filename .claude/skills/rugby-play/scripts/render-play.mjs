@@ -14,8 +14,8 @@ const FIELD_COLOR = '#3d7a40'
 const LINE_COLOR = '#ffffff'
 
 const LINES = [
-  { yFrac: 0.05 }, { yFrac: 0.235 }, { yFrac: 0.5 },
-  { yFrac: 0.765 }, { yFrac: 0.95 },
+  { yFrac: 0.143 }, { yFrac: 0.275 }, { yFrac: 0.5 },
+  { yFrac: 0.725 }, { yFrac: 0.857 },
 ]
 
 function drawPosts(ctx, x, y) {
