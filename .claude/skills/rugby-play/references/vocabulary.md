@@ -88,7 +88,7 @@ Glossary for translating user descriptions into JSON. FR aliases marked `[FR?]` 
 | Quick throw | Remise rapide | Throw before the lineout forms |
 | Lift | Soulèvement | Two supporters lifting a jumper |
 | Movement / combination | Combinaison | The pre-throw shuffling sequence |
-| Receiver | Sauteur principal `[FR?]` | The targeted jumper |
+| Receiver | Sauteur | The targeted jumper |
 
 ## Tactical kicks (rarely diagrammed in this app)
 
