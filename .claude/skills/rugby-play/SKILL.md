@@ -7,7 +7,7 @@ description: Use when designing, creating, or editing a rugby play JSON file for
 
 Generate or edit rugby play JSON files for the rugby-plays-editor app. Output goes to `src/examples/<slug>.json`. Each play is a `{ frames: Frame[] }` document where players move between consecutive frames; the app interpolates motion.
 
-See [references/schema.md](references/schema.md) for the full JSON shape and [references/vocabulary.md](references/vocabulary.md) for the EN/FR rugby glossary.
+See [references/schema.md](references/schema.md) for the full JSON shape, [references/vocabulary.md](references/vocabulary.md) for the EN/FR rugby glossary, and [references/positioning.md](references/positioning.md) for rugby union positional conventions (offside, back-line shapes, defensive shapes, pods, set-piece specifics, common misalignments).
 
 ## Pre-generation checklist
 
