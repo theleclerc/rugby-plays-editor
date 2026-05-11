@@ -22,7 +22,7 @@ function App() {
   const [savedFrames, setSavedFrames] = useKV<SavedFrame[]>('rugby-saved-frames', [])
   const [savedProjects, setSavedProjects] = useKV<SavedProject[]>('rugby-saved-projects', [])
   const [cropRegion, setCropRegion] = useKV<CropRegion | undefined>('rugby-crop-region', undefined)
-  const [currentFrameIndex, setCurrentFrameIndex] = useState(0)
+  const [currentFrameIndex, setCurrentFrameIndex] = useKV<number>('rugby-current-frame-index', 0)
   const [tool, setTool] = useState<Tool>('select')
   const [selectedTeam, setSelectedTeam] = useState<Team>('blue')
   const [selectedNumber, setSelectedNumber] = useState(1)
@@ -35,7 +35,12 @@ function App() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const safeFrames = frames || [createEmptyFrame()]
-  const currentFrame = safeFrames[currentFrameIndex]
+  // Clamp the persisted index against the (possibly smaller) hydrated frames.
+  const safeCurrentFrameIndex = Math.max(
+    0,
+    Math.min(currentFrameIndex ?? 0, safeFrames.length - 1),
+  )
+  const currentFrame = safeFrames[safeCurrentFrameIndex]
 
   useEffect(() => {
     // Only rescue a legitimately empty hydrated array. `frames === undefined`
@@ -50,7 +55,7 @@ function App() {
     setFrames((current) => {
       const currentFrames = current || [createEmptyFrame()]
       const newFrames = [...currentFrames]
-      newFrames[currentFrameIndex] = updatedFrame
+      newFrames[safeCurrentFrameIndex] = updatedFrame
       return newFrames
     })
   }
@@ -60,10 +65,10 @@ function App() {
     setFrames((current) => {
       const currentFrames = current || [createEmptyFrame()]
       const newFrames = [...currentFrames]
-      newFrames.splice(currentFrameIndex + 1, 0, newFrame)
+      newFrames.splice(safeCurrentFrameIndex + 1, 0, newFrame)
       return newFrames
     })
-    setCurrentFrameIndex(currentFrameIndex + 1)
+    setCurrentFrameIndex(safeCurrentFrameIndex + 1)
     toast.success('New frame added')
   }
 
@@ -77,11 +82,11 @@ function App() {
       const currentFrames = current || [createEmptyFrame()]
       return currentFrames.filter((_, i) => i !== index)
     })
-    
-    if (currentFrameIndex >= index && currentFrameIndex > 0) {
-      setCurrentFrameIndex((prev) => prev - 1)
+
+    if (safeCurrentFrameIndex >= index && safeCurrentFrameIndex > 0) {
+      setCurrentFrameIndex((prev) => (prev ?? 0) - 1)
     }
-    
+
     toast.success('Frame deleted')
   }
 
@@ -321,8 +326,8 @@ function App() {
 
         <FrameTimeline
           frames={safeFrames}
-          currentFrameIndex={currentFrameIndex}
-          onFrameSelect={setCurrentFrameIndex}
+          currentFrameIndex={safeCurrentFrameIndex}
+          onFrameSelect={(i) => setCurrentFrameIndex(i)}
           onFrameAdd={handleFrameAdd}
           onFrameDelete={handleFrameDelete}
         />
