@@ -38,7 +38,10 @@ function App() {
   const currentFrame = safeFrames[currentFrameIndex]
 
   useEffect(() => {
-    if (!frames || frames.length === 0) {
+    // Only rescue a legitimately empty hydrated array. `frames === undefined`
+    // means useKV has not finished hydrating from localStorage yet; writing
+    // a fresh frame in that window clobbers the user's persisted data.
+    if (frames !== undefined && frames.length === 0) {
       setFrames([createEmptyFrame()])
     }
   }, [frames, setFrames])

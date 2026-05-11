@@ -219,9 +219,7 @@ function DevTab({ active, fetcher, reader, deleter, onLoad, emptyText }: DevTabP
         </Button>
       </div>
       <ScrollArea className="h-[360px] pr-4">
-        {loading && entries === null ? (
-          <EmptyState text="Loading…" />
-        ) : error ? (
+        {error ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <p className="text-destructive mb-2">Dev server not reachable</p>
             <p className="text-xs text-muted-foreground mb-4">{error}</p>
@@ -229,11 +227,13 @@ function DevTab({ active, fetcher, reader, deleter, onLoad, emptyText }: DevTabP
               Retry
             </Button>
           </div>
-        ) : entries && entries.length === 0 ? (
+        ) : entries === null ? (
+          <EmptyState text="Loading…" />
+        ) : entries.length === 0 ? (
           <EmptyState text={emptyText} />
         ) : (
           <div className="space-y-2">
-            {entries!.map((entry) => (
+            {entries.map((entry) => (
               <Card
                 key={entry.name}
                 className="cursor-pointer hover:bg-accent transition-colors"
