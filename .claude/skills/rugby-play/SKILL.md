@@ -44,6 +44,15 @@ The app interpolates positions between consecutive frames, so each distinct phas
 
 Rule of thumb: if a frame transition has >2 simultaneously moving players AND a ball-handoff, you probably need an intermediate frame. Compressing too many phases into one transition produces nonsense interpolation (players sliding through each other, ball teleporting across the field). It's better to have 8 clean keyframes than 5 frames where the in-between motion is physically impossible.
 
+## Ruck pick-up geometry
+
+The player picking up the ball behind a ruck (typically red 9 / scrum-half) must be:
+
+- **Directly behind the ruck on the same vertical axis** — same x as the ruck centre
+- **Close to the ruck** — small y offset (~50 px ≈ 4 m) on the attacker's side
+
+So if the ruck is at `(480, 605)`, red 9 picking up belongs at `(480, ~655)` — not offset to either side. The defender (blue 9) typically mirrors on the blue side, slightly inside or outside per the play's defensive shape.
+
 ## Positioning conventions
 
 The field is 1180 × 1573. Attacking team conventionally attacks toward smaller y.
