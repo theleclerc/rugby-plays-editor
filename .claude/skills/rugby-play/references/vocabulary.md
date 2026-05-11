@@ -47,7 +47,7 @@ Glossary for translating user descriptions into JSON. FR aliases marked `[FR?]` 
 |---|---|---|
 | Cut | Coupe | Forward-running line cutting through the back line, usually a short pass |
 | Switch | Croisé | Two runners exchanging lines |
-| Loop | Saute-mouton `[FR?]` | Passer runs around the receiver to re-enter on the outside |
+| Loop | Redoublée | Passer runs around the receiver to re-enter on the outside |
 | Miss-pass | Passe sautée | Pass that skips a receiver |
 | Dummy | Feinte de passe | Faked pass to draw a defender |
 | Decoy / Dummy runner | Leurre | Runner who doesn't get the ball but draws defenders |
@@ -56,9 +56,9 @@ Glossary for translating user descriptions into JSON. FR aliases marked `[FR?]` 
 | Pod | Pod | Tight group (usually 3 forwards) working a phase |
 | Screen | Écran | Runner crossing in front to obscure the receiver |
 | Pull-back | Passe en retrait | Pass back to a trailing runner |
-| Wraparound | Wraparound `[FR?]` | Similar to loop |
+| Wraparound | Redoublée | Similar to loop |
 | Line of running | Course | Angle a runner takes |
-| Out the back | Passe par-derrière `[FR?]` | Pass thrown behind a decoy to a deeper receiver |
+| Out the back | Passe dans le dos | Pass thrown behind a decoy to a deeper receiver |
 | Crash ball | Ballon porté `[FR?]` / charge centrale | Hard carry from a centre |
 | Tip-on / Tip pass | Passe courte | Short flat pass while running flat |
 
