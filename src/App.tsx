@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/lib/storage'
 import { Frame, Tool, Team, SavedFrame, SavedProject, CropRegion } from '@/lib/types'
 import { createEmptyFrame, duplicateFrame, addTeamInLine } from '@/lib/canvas-utils'
 import { generateVideo } from '@/lib/video-export'
@@ -11,6 +11,8 @@ import { ExportDialog } from '@/components/ExportDialog'
 import { SaveFrameDialog } from '@/components/SaveFrameDialog'
 import { LoadFrameDialog } from '@/components/LoadFrameDialog'
 import { SaveProjectDialog } from '@/components/SaveProjectDialog'
+import { writeScratch, writeExample, slugify } from '@/lib/dev-storage'
+import type { SaveProjectTarget } from '@/components/SaveProjectDialog'
 import { LoadProjectDialog } from '@/components/LoadProjectDialog'
 import { Button } from '@/components/ui/button'
 import { Toaster, toast } from 'sonner'
@@ -20,7 +22,7 @@ function App() {
   const [savedFrames, setSavedFrames] = useKV<SavedFrame[]>('rugby-saved-frames', [])
   const [savedProjects, setSavedProjects] = useKV<SavedProject[]>('rugby-saved-projects', [])
   const [cropRegion, setCropRegion] = useKV<CropRegion | undefined>('rugby-crop-region', undefined)
-  const [currentFrameIndex, setCurrentFrameIndex] = useState(0)
+  const [currentFrameIndex, setCurrentFrameIndex] = useKV<number>('rugby-current-frame-index', 0)
   const [tool, setTool] = useState<Tool>('select')
   const [selectedTeam, setSelectedTeam] = useState<Team>('blue')
   const [selectedNumber, setSelectedNumber] = useState(1)
@@ -33,10 +35,18 @@ function App() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const safeFrames = frames || [createEmptyFrame()]
-  const currentFrame = safeFrames[currentFrameIndex]
+  // Clamp the persisted index against the (possibly smaller) hydrated frames.
+  const safeCurrentFrameIndex = Math.max(
+    0,
+    Math.min(currentFrameIndex ?? 0, safeFrames.length - 1),
+  )
+  const currentFrame = safeFrames[safeCurrentFrameIndex]
 
   useEffect(() => {
-    if (!frames || frames.length === 0) {
+    // Only rescue a legitimately empty hydrated array. `frames === undefined`
+    // means useKV has not finished hydrating from localStorage yet; writing
+    // a fresh frame in that window clobbers the user's persisted data.
+    if (frames !== undefined && frames.length === 0) {
       setFrames([createEmptyFrame()])
     }
   }, [frames, setFrames])
@@ -45,7 +55,7 @@ function App() {
     setFrames((current) => {
       const currentFrames = current || [createEmptyFrame()]
       const newFrames = [...currentFrames]
-      newFrames[currentFrameIndex] = updatedFrame
+      newFrames[safeCurrentFrameIndex] = updatedFrame
       return newFrames
     })
   }
@@ -55,10 +65,10 @@ function App() {
     setFrames((current) => {
       const currentFrames = current || [createEmptyFrame()]
       const newFrames = [...currentFrames]
-      newFrames.splice(currentFrameIndex + 1, 0, newFrame)
+      newFrames.splice(safeCurrentFrameIndex + 1, 0, newFrame)
       return newFrames
     })
-    setCurrentFrameIndex(currentFrameIndex + 1)
+    setCurrentFrameIndex(safeCurrentFrameIndex + 1)
     toast.success('New frame added')
   }
 
@@ -72,11 +82,11 @@ function App() {
       const currentFrames = current || [createEmptyFrame()]
       return currentFrames.filter((_, i) => i !== index)
     })
-    
-    if (currentFrameIndex >= index && currentFrameIndex > 0) {
-      setCurrentFrameIndex((prev) => prev - 1)
+
+    if (safeCurrentFrameIndex >= index && safeCurrentFrameIndex > 0) {
+      setCurrentFrameIndex((prev) => (prev ?? 0) - 1)
     }
-    
+
     toast.success('Frame deleted')
   }
 
@@ -160,17 +170,36 @@ function App() {
     setLoadProjectDialogOpen(true)
   }
 
-  const handleSaveProjectWithName = (name: string) => {
-    const savedProject: SavedProject = {
+  const handleSaveProjectWithName = async (name: string, target: SaveProjectTarget) => {
+    const project: SavedProject = {
       id: crypto.randomUUID(),
       name,
       frames: JSON.parse(JSON.stringify(safeFrames)),
       cropRegion: cropRegion ? JSON.parse(JSON.stringify(cropRegion)) : undefined,
       createdAt: Date.now(),
     }
-    
-    setSavedProjects((current) => [...(current || []), savedProject])
-    toast.success(`Project "${name}" saved successfully`)
+
+    if (target === 'library') {
+      setSavedProjects((current) => [...(current || []), project])
+      toast.success(`Project "${name}" saved successfully`)
+      return
+    }
+
+    const filename = `${slugify(name)}.json`
+    try {
+      if (target === 'scratch') {
+        await writeScratch(filename, project)
+        toast.success(`Saved to dev-scratch/${filename}`)
+      } else {
+        await writeExample(filename, project)
+        toast.success(
+          `Saved to src/examples/${filename} — commit it to ship with the app.`,
+        )
+      }
+    } catch (err) {
+      console.error(err)
+      toast.error(`Failed to save: ${(err as Error).message}`)
+    }
   }
 
   const handleLoadSavedProject = (savedProject: SavedProject) => {
@@ -297,8 +326,8 @@ function App() {
 
         <FrameTimeline
           frames={safeFrames}
-          currentFrameIndex={currentFrameIndex}
-          onFrameSelect={setCurrentFrameIndex}
+          currentFrameIndex={safeCurrentFrameIndex}
+          onFrameSelect={(i) => setCurrentFrameIndex(i)}
           onFrameAdd={handleFrameAdd}
           onFrameDelete={handleFrameDelete}
         />

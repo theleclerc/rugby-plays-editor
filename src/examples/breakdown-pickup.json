@@ -1,0 +1,26 @@
+{
+  "name": "Breakdown Pick-up",
+  "frames": [
+    {
+      "id": "ex-bp-frame-1",
+      "players": [
+        { "id": "ex-bp-1", "number": 9, "team": "blue", "x": 590, "y": 800 },
+        { "id": "ex-bp-2", "number": 10, "team": "blue", "x": 720, "y": 760 },
+        { "id": "ex-bp-3", "number": 12, "team": "blue", "x": 850, "y": 740 }
+      ],
+      "ball": { "id": "ex-bp-ball", "x": 590, "y": 820 },
+      "emojis": []
+    },
+    {
+      "id": "ex-bp-frame-2",
+      "players": [
+        { "id": "ex-bp-1", "number": 9, "team": "blue", "x": 600, "y": 780 },
+        { "id": "ex-bp-2", "number": 10, "team": "blue", "x": 760, "y": 740 },
+        { "id": "ex-bp-3", "number": 12, "team": "blue", "x": 920, "y": 720 }
+      ],
+      "ball": { "id": "ex-bp-ball", "x": 760, "y": 760 },
+      "emojis": []
+    }
+  ],
+  "cropRegion": null
+}

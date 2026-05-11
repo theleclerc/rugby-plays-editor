@@ -1,6 +1,7 @@
 services:
   app:
     build: .
+    command: npm run dev -- --host
     ports:
       - "5000:5000"
     volumes:

@@ -4,6 +4,7 @@ import { defineConfig, PluginOption } from "vite";
 
 import sparkPlugin from "@github/spark/spark-vite-plugin";
 import createIconImportProxy from "@github/spark/vitePhosphorIconProxyPlugin";
+import { devStoragePlugin } from "./vite-plugins/dev-storage-plugin";
 import { resolve } from 'path'
 
 const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
@@ -16,6 +17,7 @@ export default defineConfig({
     // DO NOT REMOVE
     createIconImportProxy() as PluginOption,
     sparkPlugin() as PluginOption,
+    devStoragePlugin(),
   ],
   resolve: {
     alias: {
@@ -23,7 +25,7 @@ export default defineConfig({
     }
   },
   server: {
-    host: true, // or "0.0.0.0"
+    host: true,
     port: 5000,
     allowedHosts: [
       "rugby-plays-editor.onrender.com"
