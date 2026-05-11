@@ -20,6 +20,30 @@ Capture these before writing JSON. Don't ask everything in order — note what t
 - **Defending shape** — alignment, sweepers, who marks whom
 - **Number of frames** and what changes between each
 
+## ALWAYS propose the frame plan first
+
+Before writing any JSON, reply with a frame-by-frame plan and wait for user approval. Format:
+
+> Suggested frame plan: N frames
+> 1. [one-line description of what frame 1 captures]
+> 2. [...]
+> ...
+> N. [...]
+> Want to proceed?
+
+Only write JSON after the user approves the plan.
+
+## Use enough frames for realistic motion
+
+The app interpolates positions between consecutive frames, so each distinct phase of motion needs its own keyframe. Treat these as separate phases that get their own frame:
+
+- **Each pass** — one frame per "ball at receiver X". Don't combine "9 has ball" and "12 has ball" into one transition if there's an intermediate pass.
+- **Contact moments** — pod hits the line, ruck forms, tackle made.
+- **Reshape moments** — line shifts right, a player inserts into the line, defenders pinch in.
+- **Pick-up moments** — 9 arrives at ruck base, picks up, gets ready to pass.
+
+Rule of thumb: if a frame transition has >2 simultaneously moving players AND a ball-handoff, you probably need an intermediate frame. Compressing too many phases into one transition produces nonsense interpolation (players sliding through each other, ball teleporting across the field). It's better to have 8 clean keyframes than 5 frames where the in-between motion is physically impossible.
+
 ## Positioning conventions
 
 The field is 1180 × 1573. Attacking team conventionally attacks toward smaller y.
