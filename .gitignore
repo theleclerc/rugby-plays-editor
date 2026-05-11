@@ -30,6 +30,9 @@ packages
 pids
 .file-manifest
 
+# rugby-play skill render outputs
+src/examples/*-renders/
+
 .spark-workbench-id
 
 # Claude Code local-only overrides (personal permissions, env, etc.)
