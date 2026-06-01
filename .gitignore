@@ -29,7 +29,9 @@ dist-ssr
 packages
 pids
 .file-manifest
-.devcontainer/
+
+# rugby-play skill render outputs
+src/examples/*-renders/
 
 .spark-workbench-id
 

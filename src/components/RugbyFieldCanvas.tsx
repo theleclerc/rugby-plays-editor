@@ -86,6 +86,14 @@ export const RugbyFieldCanvas = ({
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [frame, selectedObjectIds, onFrameUpdate])
 
+  // Canvas backing-store size matches the visible viewport — either the full
+  // field or the crop region. Drawing translates into field coords so all the
+  // existing draw fns (which take absolute field x/y) keep working unchanged.
+  const viewWidth = cropRegion ? cropRegion.width : FIELD_WIDTH
+  const viewHeight = cropRegion ? cropRegion.height : FIELD_HEIGHT
+  const viewOffsetX = cropRegion ? cropRegion.x : 0
+  const viewOffsetY = cropRegion ? cropRegion.y : 0
+
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas || !fieldImage) return
@@ -93,7 +101,10 @@ export const RugbyFieldCanvas = ({
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    ctx.clearRect(0, 0, FIELD_WIDTH, FIELD_HEIGHT)
+    ctx.setTransform(1, 0, 0, 1, 0, 0)
+    ctx.clearRect(0, 0, viewWidth, viewHeight)
+    ctx.translate(-viewOffsetX, -viewOffsetY)
+
     drawRugbyField(ctx, FIELD_WIDTH, FIELD_HEIGHT, fieldImage)
 
     frame.players.forEach(player => {
@@ -107,16 +118,6 @@ export const RugbyFieldCanvas = ({
     frame.emojis.forEach(emoji => {
       drawEmoji(ctx, emoji, selectedObjectIds.has(emoji.id))
     })
-
-    if (cropRegion) {
-      ctx.strokeStyle = 'rgba(255, 165, 0, 0.8)'
-      ctx.lineWidth = 3
-      ctx.setLineDash([10, 5])
-      ctx.strokeRect(cropRegion.x, cropRegion.y, cropRegion.width, cropRegion.height)
-      ctx.fillStyle = 'rgba(255, 165, 0, 0.1)'
-      ctx.fillRect(cropRegion.x, cropRegion.y, cropRegion.width, cropRegion.height)
-      ctx.setLineDash([])
-    }
 
     if (cropStart && cropEnd) {
       const x = Math.min(cropStart.x, cropEnd.x)
@@ -132,19 +133,19 @@ export const RugbyFieldCanvas = ({
       ctx.fillRect(x, y, width, height)
       ctx.setLineDash([])
     }
-  }, [frame, selectedObjectIds, fieldImage, cropRegion, cropStart, cropEnd])
+  }, [frame, selectedObjectIds, fieldImage, cropRegion, cropStart, cropEnd, viewWidth, viewHeight, viewOffsetX, viewOffsetY])
 
   const getCanvasCoordinates = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current
     if (!canvas) return { x: 0, y: 0 }
 
     const rect = canvas.getBoundingClientRect()
-    const scaleX = FIELD_WIDTH / rect.width
-    const scaleY = FIELD_HEIGHT / rect.height
+    const scaleX = viewWidth / rect.width
+    const scaleY = viewHeight / rect.height
 
     return {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY
+      x: (e.clientX - rect.left) * scaleX + viewOffsetX,
+      y: (e.clientY - rect.top) * scaleY + viewOffsetY
     }
   }
 
@@ -362,19 +363,19 @@ export const RugbyFieldCanvas = ({
   return (
     <canvas
       ref={canvasRef}
-      width={FIELD_WIDTH}
-      height={FIELD_HEIGHT}
+      width={viewWidth}
+      height={viewHeight}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
       className="border-2 border-border rounded-lg shadow-lg cursor-crosshair max-w-full"
-      style={{ 
+      style={{
         maxHeight: '70vh',
         width: 'auto',
         height: 'auto',
         objectFit: 'contain',
-        aspectRatio: `${FIELD_WIDTH} / ${FIELD_HEIGHT}`
+        aspectRatio: `${viewWidth} / ${viewHeight}`
       }}
     />
   )

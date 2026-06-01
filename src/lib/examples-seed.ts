@@ -1,9 +1,10 @@
-import { Frame, CropRegion, SavedProject } from './types'
+import { Frame, CropRegion, SavedProject, ViewPreset } from './types'
 
 interface RawExample {
   name: string
   frames: Frame[]
   cropRegion?: CropRegion | null
+  viewPreset?: ViewPreset | null
 }
 
 const SEED_SENTINEL = 'rugby-seeded-v1'
@@ -53,6 +54,7 @@ export function seedExamplesIfNeeded(): void {
         emojis: f.emojis.map((e) => ({ ...e, id: crypto.randomUUID() })),
       })),
       cropRegion: ex.cropRegion ?? undefined,
+      viewPreset: ex.viewPreset ?? undefined,
       createdAt: now,
     }))
 

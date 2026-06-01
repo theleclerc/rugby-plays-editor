@@ -191,6 +191,7 @@ function DevTab({ active, fetcher, reader, deleter, onLoad, emptyText }: DevTabP
         name: project.name ?? entry.name.replace(/\.json$/, ''),
         frames: project.frames,
         cropRegion: project.cropRegion,
+        viewPreset: project.viewPreset,
         createdAt:
           typeof project.createdAt === 'number' ? project.createdAt : entry.savedAt,
       }
