@@ -28,6 +28,15 @@ export interface CropRegion {
   height: number
 }
 
+export type ViewPreset =
+  | 'full'
+  | 'lineout-left'
+  | 'lineout-right'
+  | 'half-22-22'
+  | 'half-attack'
+  | 'right-channel'
+  | 'custom'
+
 export interface Frame {
   id: string
   players: Player[]
@@ -55,5 +64,6 @@ export interface SavedProject {
   name: string
   frames: Frame[]
   cropRegion?: CropRegion
+  viewPreset?: ViewPreset
   createdAt: number
 }

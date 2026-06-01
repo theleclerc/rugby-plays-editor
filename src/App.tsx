@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { useKV } from '@/lib/storage'
-import { Frame, Tool, Team, SavedFrame, SavedProject, CropRegion } from '@/lib/types'
+import { Frame, Tool, Team, SavedFrame, SavedProject, CropRegion, ViewPreset } from '@/lib/types'
 import { createEmptyFrame, duplicateFrame, addTeamInLine } from '@/lib/canvas-utils'
 import { generateVideo } from '@/lib/video-export'
 import { downloadProjectFile, importProject } from '@/lib/project-utils'
+import { regionForPreset } from '@/lib/view-presets'
 import { RugbyFieldCanvas } from '@/components/RugbyFieldCanvas'
 import { Toolbar } from '@/components/Toolbar'
+import { ViewPresetSelector } from '@/components/ViewPresetSelector'
 import { FrameTimeline } from '@/components/FrameTimeline'
 import { ExportDialog } from '@/components/ExportDialog'
 import { SaveFrameDialog } from '@/components/SaveFrameDialog'
@@ -14,7 +16,6 @@ import { SaveProjectDialog } from '@/components/SaveProjectDialog'
 import { writeScratch, writeExample, slugify } from '@/lib/dev-storage'
 import type { SaveProjectTarget } from '@/components/SaveProjectDialog'
 import { LoadProjectDialog } from '@/components/LoadProjectDialog'
-import { Button } from '@/components/ui/button'
 import { Toaster, toast } from 'sonner'
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
   const [savedFrames, setSavedFrames] = useKV<SavedFrame[]>('rugby-saved-frames', [])
   const [savedProjects, setSavedProjects] = useKV<SavedProject[]>('rugby-saved-projects', [])
   const [cropRegion, setCropRegion] = useKV<CropRegion | undefined>('rugby-crop-region', undefined)
+  const [viewPreset, setViewPreset] = useKV<ViewPreset>('rugby-view-preset', 'full')
   const [currentFrameIndex, setCurrentFrameIndex] = useKV<number>('rugby-current-frame-index', 0)
   const [tool, setTool] = useState<Tool>('select')
   const [selectedTeam, setSelectedTeam] = useState<Team>('blue')
@@ -35,6 +37,20 @@ function App() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const safeFrames = frames || [createEmptyFrame()]
+  const safeViewPreset: ViewPreset = viewPreset ?? 'full'
+
+  const handleViewPresetChange = (preset: ViewPreset) => {
+    setViewPreset(preset)
+    if (preset !== 'custom') {
+      setCropRegion(regionForPreset(preset, cropRegion))
+    }
+  }
+
+  const handleCropRegionChange = (region: CropRegion | undefined) => {
+    setCropRegion(region)
+    setViewPreset(region ? 'custom' : 'full')
+  }
+
   // Clamp the persisted index against the (possibly smaller) hydrated frames.
   const safeCurrentFrameIndex = Math.max(
     0,
@@ -154,7 +170,7 @@ function App() {
   }
 
   const handleSaveProject = () => {
-    downloadProjectFile(safeFrames, cropRegion)
+    downloadProjectFile(safeFrames, cropRegion, safeViewPreset)
     toast.success('Project saved successfully')
   }
 
@@ -176,6 +192,7 @@ function App() {
       name,
       frames: JSON.parse(JSON.stringify(safeFrames)),
       cropRegion: cropRegion ? JSON.parse(JSON.stringify(cropRegion)) : undefined,
+      viewPreset: safeViewPreset,
       createdAt: Date.now(),
     }
 
@@ -215,6 +232,7 @@ function App() {
     } else {
       setCropRegion(undefined)
     }
+    setViewPreset(savedProject.viewPreset ?? (savedProject.cropRegion ? 'custom' : 'full'))
     toast.success(`Project "${savedProject.name}" loaded`)
   }
 
@@ -234,8 +252,8 @@ function App() {
     reader.onload = (e) => {
       try {
         const jsonString = e.target?.result as string
-        const { frames: loadedFrames, cropRegion: loadedCropRegion } = importProject(jsonString)
-        
+        const { frames: loadedFrames, cropRegion: loadedCropRegion, viewPreset: loadedViewPreset } = importProject(jsonString)
+
         setFrames(loadedFrames)
         setCurrentFrameIndex(0)
         if (loadedCropRegion) {
@@ -243,6 +261,7 @@ function App() {
         } else {
           setCropRegion(undefined)
         }
+        setViewPreset(loadedViewPreset ?? (loadedCropRegion ? 'custom' : 'full'))
         toast.success('Project loaded successfully')
       } catch {
         toast.error('Failed to load project file')
@@ -292,36 +311,28 @@ function App() {
           onLoadProjectLocally={handleLoadProjectLocally}
         />
 
-        <div className="flex justify-center">
-          <div className="relative">
-            <RugbyFieldCanvas
-              frame={currentFrame}
-              onFrameUpdate={handleFrameUpdate}
-              tool={tool}
-              selectedTeam={selectedTeam}
-              selectedNumber={selectedNumber}
-              selectedEmoji={selectedEmoji}
-              cropRegion={cropRegion}
-              onCropRegionChange={setCropRegion}
-              onPlayerAdded={handlePlayerAdded}
+        <div className="flex flex-col items-center gap-2">
+          <div className="flex items-center gap-6">
+            <ViewPresetSelector
+              value={safeViewPreset}
+              onChange={handleViewPresetChange}
+              hasCustom={safeViewPreset === 'custom'}
             />
-            {cropRegion && (
-              <div className="absolute top-2 right-2 bg-card border border-border rounded-lg shadow-lg p-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">
-                    Crop: {Math.round(cropRegion.width)} × {Math.round(cropRegion.height)}
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setCropRegion(undefined)}
-                  >
-                    Clear
-                  </Button>
-                </div>
-              </div>
-            )}
+            <span className="text-sm font-medium text-muted-foreground">
+              Frame {safeCurrentFrameIndex + 1} / {safeFrames.length}
+            </span>
           </div>
+          <RugbyFieldCanvas
+            frame={currentFrame}
+            onFrameUpdate={handleFrameUpdate}
+            tool={tool}
+            selectedTeam={selectedTeam}
+            selectedNumber={selectedNumber}
+            selectedEmoji={selectedEmoji}
+            cropRegion={cropRegion}
+            onCropRegionChange={handleCropRegionChange}
+            onPlayerAdded={handlePlayerAdded}
+          />
         </div>
 
         <FrameTimeline
