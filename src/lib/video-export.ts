@@ -16,6 +16,29 @@ interface InterpolatedFrame {
   opacity?: number
 }
 
+// Priority-ordered container/codec combos probed against MediaRecorder.
+// MP4 comes first so every browser that can record it (Safari, recent Chrome/Edge)
+// produces the most widely playable/shareable file. The WebM entries are fallbacks
+// for browsers without MP4 recording support (Firefox, older Chrome), fixing the
+// crash caused by hardcoding the Chrome-only `video/webm;codecs=vp9`.
+const MIME_TYPE_CANDIDATES = [
+  'video/mp4;codecs=avc1',
+  'video/mp4',
+  'video/webm;codecs=vp9',
+  'video/webm;codecs=vp8',
+  'video/webm',
+]
+
+const getSupportedMimeType = (): string => {
+  if (typeof MediaRecorder === 'undefined') return ''
+  for (const mimeType of MIME_TYPE_CANDIDATES) {
+    if (MediaRecorder.isTypeSupported(mimeType)) {
+      return mimeType
+    }
+  }
+  return ''
+}
+
 const lerp = (start: number, end: number, t: number): number => {
   return start + (end - start) * t
 }
@@ -153,8 +176,9 @@ export const generateVideo = async (
   }
   
   const stream = outputCanvas.captureStream(fps)
+  const mimeType = getSupportedMimeType()
   const mediaRecorder = new MediaRecorder(stream, {
-    mimeType: 'video/webm;codecs=vp9',
+    ...(mimeType ? { mimeType } : {}),
     videoBitsPerSecond: 2500000
   })
   
@@ -168,7 +192,7 @@ export const generateVideo = async (
     }
     
     mediaRecorder.onstop = () => {
-      const blob = new Blob(chunks, { type: 'video/webm' })
+      const blob = new Blob(chunks, { type: mediaRecorder.mimeType || mimeType || 'video/webm' })
       resolve(blob)
     }
     

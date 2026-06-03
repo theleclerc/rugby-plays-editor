@@ -65,9 +65,10 @@ export const ExportDialog = ({ open, onOpenChange, onExport }: ExportDialogProps
     if (!previewBlob) return
     
     const url = URL.createObjectURL(previewBlob)
+    const extension = previewBlob.type.includes('mp4') ? 'mp4' : 'webm'
     const a = document.createElement('a')
     a.href = url
-    a.download = `rugby-play-${Date.now()}.webm`
+    a.download = `rugby-play-${Date.now()}.${extension}`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
