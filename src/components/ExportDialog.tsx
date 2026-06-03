@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { Progress } from '@/components/ui/progress'
 import { Download, Play, X } from '@phosphor-icons/react'
+import { downloadBlob } from '@/lib/download-utils'
 
 interface ExportDialogProps {
   open: boolean
@@ -63,17 +64,9 @@ export const ExportDialog = ({ open, onOpenChange, onExport }: ExportDialogProps
 
   const handleDownload = () => {
     if (!previewBlob) return
-    
-    const url = URL.createObjectURL(previewBlob)
-    const extension = previewBlob.type.includes('mp4') ? 'mp4' : 'webm'
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `rugby-play-${Date.now()}.${extension}`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-    
+
+    downloadBlob(previewBlob, `rugby-play-${Date.now()}`)
+
     onOpenChange(false)
     handleClosePreview()
   }
