@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent } from '@/components/ui/card'
 import { SavedProject } from '@/lib/types'
-import { Trash, FileText, ArrowsClockwise } from '@phosphor-icons/react'
+import { Trash, FileText, ArrowsClockwise, Download } from '@phosphor-icons/react'
 import {
   isDev,
   listScratch,
@@ -29,6 +29,7 @@ interface LoadProjectDialogProps {
   savedProjects: SavedProject[]
   onLoad: (project: SavedProject) => void
   onDelete: (id: string) => void
+  onExportLibrary?: () => void
 }
 
 type Tab = 'library' | 'scratch' | 'examples'
@@ -39,6 +40,7 @@ export function LoadProjectDialog({
   savedProjects,
   onLoad,
   onDelete,
+  onExportLibrary,
 }: LoadProjectDialogProps) {
   const [tab, setTab] = useState<Tab>('library')
 
@@ -68,6 +70,22 @@ export function LoadProjectDialog({
           </TabsList>
 
           <TabsContent value="library">
+            <div className="flex items-center justify-between pb-2">
+              <p className="text-sm text-muted-foreground">
+                {savedProjects.length} project
+                {savedProjects.length !== 1 ? 's' : ''}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={savedProjects.length === 0 || !onExportLibrary}
+                onClick={() => onExportLibrary?.()}
+                className="gap-2"
+              >
+                <Download weight="bold" className="w-4 h-4" />
+                Export all videos
+              </Button>
+            </div>
             <ScrollArea className="h-[400px] pr-4">
               {savedProjects.length === 0 ? (
                 <EmptyState text="No saved projects yet" />
