@@ -13,10 +13,15 @@ import { ExportDialog } from '@/components/ExportDialog'
 import { SaveFrameDialog } from '@/components/SaveFrameDialog'
 import { LoadFrameDialog } from '@/components/LoadFrameDialog'
 import { SaveProjectDialog } from '@/components/SaveProjectDialog'
-import { writeScratch, writeExample, slugify } from '@/lib/dev-storage'
+import { writeScratch, writeExample, slugify, type DevEntry } from '@/lib/dev-storage'
 import type { SaveProjectTarget } from '@/components/SaveProjectDialog'
 import { LoadProjectDialog } from '@/components/LoadProjectDialog'
 import { Toaster, toast } from 'sonner'
+import { runBatchExport, type BatchExportItem } from '@/lib/batch-export'
+import {
+  BatchExportProgressDialog,
+  type BatchExportProgress,
+} from '@/components/BatchExportProgressDialog'
 
 function App() {
   const [frames, setFrames] = useKV<Frame[]>('rugby-frames', [createEmptyFrame()])
@@ -30,6 +35,14 @@ function App() {
   const [selectedNumber, setSelectedNumber] = useState(1)
   const [selectedEmoji, setSelectedEmoji] = useState('🏉')
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
+  const [batchExportOpen, setBatchExportOpen] = useState(false)
+  const [batchProgress, setBatchProgress] = useState<BatchExportProgress>({
+    total: 0,
+    completed: 0,
+    currentName: '',
+    currentProgress: 0,
+  })
+  const batchCancelRef = useRef(false)
   const [saveFrameDialogOpen, setSaveFrameDialogOpen] = useState(false)
   const [loadFrameDialogOpen, setLoadFrameDialogOpen] = useState(false)
   const [saveProjectDialogOpen, setSaveProjectDialogOpen] = useState(false)
@@ -130,6 +143,71 @@ function App() {
       throw error
     }
   }
+
+  const runBatch = async (items: BatchExportItem[]) => {
+    if (items.length === 0) return
+
+    setLoadProjectDialogOpen(false)
+    batchCancelRef.current = false
+    setBatchProgress({
+      total: items.length,
+      completed: 0,
+      currentName: items[0].name,
+      currentProgress: 0,
+    })
+    setBatchExportOpen(true)
+
+    const { exported, failed, cancelled } = await runBatchExport(items, {
+      isCancelled: () => batchCancelRef.current,
+      onItemStart: (i, name) =>
+        setBatchProgress((prev) => ({
+          ...prev,
+          completed: i,
+          currentName: name,
+          currentProgress: 0,
+        })),
+      onItemProgress: (progress) =>
+        setBatchProgress((prev) => ({ ...prev, currentProgress: progress })),
+    })
+
+    const total = items.length
+    setBatchProgress((prev) => ({
+      ...prev,
+      completed: exported + failed,
+      currentProgress: 0,
+    }))
+    setBatchExportOpen(false)
+
+    if (cancelled) {
+      toast.message(`Cancelled — exported ${exported} of ${total} videos`)
+    } else if (failed > 0) {
+      toast.error(`Exported ${exported} of ${total} — ${failed} failed`)
+    } else {
+      toast.success(`Exported ${exported} video${exported !== 1 ? 's' : ''}`)
+    }
+  }
+
+  const handleExportLibrary = () =>
+    runBatch(
+      (savedProjects || []).map((project) => ({
+        name: project.name,
+        load: async () => ({ frames: project.frames, cropRegion: project.cropRegion }),
+      })),
+    )
+
+  const handleExportDevEntries = (
+    entries: DevEntry[],
+    reader: (name: string) => Promise<SavedProject>,
+  ) =>
+    runBatch(
+      entries.map((entry) => ({
+        name: entry.name.replace(/\.json$/, ''),
+        load: async () => {
+          const project = await reader(entry.name)
+          return { frames: project.frames, cropRegion: project.cropRegion }
+        },
+      })),
+    )
 
   const handleAddTeamLine = (team: Team) => {
     const updatedFrame = addTeamInLine(currentFrame, team)
@@ -348,6 +426,13 @@ function App() {
           onOpenChange={setExportDialogOpen}
           onExport={handleExport}
         />
+        <BatchExportProgressDialog
+          open={batchExportOpen}
+          state={batchProgress}
+          onCancel={() => {
+            batchCancelRef.current = true
+          }}
+        />
 
         <SaveFrameDialog
           open={saveFrameDialogOpen}
@@ -375,6 +460,8 @@ function App() {
           savedProjects={savedProjects || []}
           onLoad={handleLoadSavedProject}
           onDelete={handleDeleteSavedProject}
+          onExportLibrary={handleExportLibrary}
+          onExportDevEntries={handleExportDevEntries}
         />
       </div>
     </div>

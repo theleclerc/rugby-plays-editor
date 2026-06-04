@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent } from '@/components/ui/card'
 import { SavedProject } from '@/lib/types'
-import { Trash, FileText, ArrowsClockwise } from '@phosphor-icons/react'
+import { Trash, FileText, ArrowsClockwise, Download } from '@phosphor-icons/react'
 import {
   isDev,
   listScratch,
@@ -29,6 +29,11 @@ interface LoadProjectDialogProps {
   savedProjects: SavedProject[]
   onLoad: (project: SavedProject) => void
   onDelete: (id: string) => void
+  onExportLibrary?: () => void
+  onExportDevEntries?: (
+    entries: DevEntry[],
+    reader: (name: string) => Promise<SavedProject>,
+  ) => void
 }
 
 type Tab = 'library' | 'scratch' | 'examples'
@@ -39,6 +44,8 @@ export function LoadProjectDialog({
   savedProjects,
   onLoad,
   onDelete,
+  onExportLibrary,
+  onExportDevEntries,
 }: LoadProjectDialogProps) {
   const [tab, setTab] = useState<Tab>('library')
 
@@ -68,6 +75,22 @@ export function LoadProjectDialog({
           </TabsList>
 
           <TabsContent value="library">
+            <div className="flex items-center justify-between pb-2">
+              <p className="text-sm text-muted-foreground">
+                {savedProjects.length} project
+                {savedProjects.length !== 1 ? 's' : ''}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={savedProjects.length === 0 || !onExportLibrary}
+                onClick={() => onExportLibrary?.()}
+                className="gap-2"
+              >
+                <Download weight="bold" className="w-4 h-4" />
+                Export all videos
+              </Button>
+            </div>
             <ScrollArea className="h-[400px] pr-4">
               {savedProjects.length === 0 ? (
                 <EmptyState text="No saved projects yet" />
@@ -115,6 +138,7 @@ export function LoadProjectDialog({
                   onLoad(p)
                   onOpenChange(false)
                 }}
+                onExportAll={(entries) => onExportDevEntries?.(entries, readScratch)}
                 emptyText="No scratch saves yet"
               />
             </TabsContent>
@@ -131,6 +155,7 @@ export function LoadProjectDialog({
                   onLoad(p)
                   onOpenChange(false)
                 }}
+                onExportAll={(entries) => onExportDevEntries?.(entries, readExample)}
                 emptyText="No example files in src/examples/"
               />
             </TabsContent>
@@ -156,10 +181,11 @@ interface DevTabProps {
   reader: (name: string) => Promise<SavedProject>
   deleter: (name: string) => Promise<void>
   onLoad: (project: SavedProject) => void
+  onExportAll?: (entries: DevEntry[]) => void
   emptyText: string
 }
 
-function DevTab({ active, fetcher, reader, deleter, onLoad, emptyText }: DevTabProps) {
+function DevTab({ active, fetcher, reader, deleter, onLoad, onExportAll, emptyText }: DevTabProps) {
   const [entries, setEntries] = useState<DevEntry[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -213,7 +239,19 @@ function DevTab({ active, fetcher, reader, deleter, onLoad, emptyText }: DevTabP
 
   return (
     <div className="space-y-2">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        {onExportAll && entries && entries.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={loading}
+            onClick={() => onExportAll(entries)}
+            className="gap-2"
+          >
+            <Download weight="bold" className="w-4 h-4" />
+            Export all videos
+          </Button>
+        )}
         <Button variant="ghost" size="sm" onClick={refresh} disabled={loading}>
           <ArrowsClockwise size={14} className="mr-1" />
           Refresh
