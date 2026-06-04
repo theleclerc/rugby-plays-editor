@@ -13,11 +13,11 @@ import { ExportDialog } from '@/components/ExportDialog'
 import { SaveFrameDialog } from '@/components/SaveFrameDialog'
 import { LoadFrameDialog } from '@/components/LoadFrameDialog'
 import { SaveProjectDialog } from '@/components/SaveProjectDialog'
-import { writeScratch, writeExample, slugify } from '@/lib/dev-storage'
+import { writeScratch, writeExample, slugify, type DevEntry } from '@/lib/dev-storage'
 import type { SaveProjectTarget } from '@/components/SaveProjectDialog'
 import { LoadProjectDialog } from '@/components/LoadProjectDialog'
 import { Toaster, toast } from 'sonner'
-import { downloadBlob } from '@/lib/download-utils'
+import { runBatchExport, type BatchExportItem } from '@/lib/batch-export'
 import {
   BatchExportProgressDialog,
   type BatchExportProgress,
@@ -144,52 +144,33 @@ function App() {
     }
   }
 
-  const handleExportLibrary = async () => {
-    const projects = savedProjects || []
-    if (projects.length === 0) return
+  const runBatch = async (items: BatchExportItem[]) => {
+    if (items.length === 0) return
 
     setLoadProjectDialogOpen(false)
     batchCancelRef.current = false
     setBatchProgress({
-      total: projects.length,
+      total: items.length,
       completed: 0,
-      currentName: projects[0].name,
+      currentName: items[0].name,
       currentProgress: 0,
     })
     setBatchExportOpen(true)
 
-    let exported = 0
-    let failed = 0
+    const { exported, failed, cancelled } = await runBatchExport(items, {
+      isCancelled: () => batchCancelRef.current,
+      onItemStart: (i, name) =>
+        setBatchProgress((prev) => ({
+          ...prev,
+          completed: i,
+          currentName: name,
+          currentProgress: 0,
+        })),
+      onItemProgress: (progress) =>
+        setBatchProgress((prev) => ({ ...prev, currentProgress: progress })),
+    })
 
-    for (let i = 0; i < projects.length; i++) {
-      if (batchCancelRef.current) break
-      const project = projects[i]
-      setBatchProgress((prev) => ({
-        ...prev,
-        completed: i,
-        currentName: project.name,
-        currentProgress: 0,
-      }))
-
-      try {
-        const blob = await generateVideo(
-          project.frames,
-          1,
-          30,
-          30,
-          project.cropRegion,
-          (progress) =>
-            setBatchProgress((prev) => ({ ...prev, currentProgress: progress }))
-        )
-        downloadBlob(blob, project.name)
-        exported++
-      } catch (error) {
-        console.error(`Failed to export "${project.name}":`, error)
-        failed++
-      }
-    }
-
-    const cancelled = batchCancelRef.current
+    const total = items.length
     setBatchProgress((prev) => ({
       ...prev,
       completed: exported + failed,
@@ -198,13 +179,35 @@ function App() {
     setBatchExportOpen(false)
 
     if (cancelled) {
-      toast.message(`Cancelled — exported ${exported} of ${projects.length} videos`)
+      toast.message(`Cancelled — exported ${exported} of ${total} videos`)
     } else if (failed > 0) {
-      toast.error(`Exported ${exported} of ${projects.length} — ${failed} failed`)
+      toast.error(`Exported ${exported} of ${total} — ${failed} failed`)
     } else {
       toast.success(`Exported ${exported} video${exported !== 1 ? 's' : ''}`)
     }
   }
+
+  const handleExportLibrary = () =>
+    runBatch(
+      (savedProjects || []).map((project) => ({
+        name: project.name,
+        load: async () => ({ frames: project.frames, cropRegion: project.cropRegion }),
+      })),
+    )
+
+  const handleExportDevEntries = (
+    entries: DevEntry[],
+    reader: (name: string) => Promise<SavedProject>,
+  ) =>
+    runBatch(
+      entries.map((entry) => ({
+        name: entry.name.replace(/\.json$/, ''),
+        load: async () => {
+          const project = await reader(entry.name)
+          return { frames: project.frames, cropRegion: project.cropRegion }
+        },
+      })),
+    )
 
   const handleAddTeamLine = (team: Team) => {
     const updatedFrame = addTeamInLine(currentFrame, team)
@@ -458,6 +461,7 @@ function App() {
           onLoad={handleLoadSavedProject}
           onDelete={handleDeleteSavedProject}
           onExportLibrary={handleExportLibrary}
+          onExportDevEntries={handleExportDevEntries}
         />
       </div>
     </div>
